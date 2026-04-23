@@ -1310,10 +1310,11 @@
         id="chefVideo"
         class="chef-video"
         src="video_compressed.mp4"
+        autoplay
         loop
         muted
         playsinline
-        preload="metadata"
+        preload="auto"
         poster="https://images.unsplash.com/photo-1600891964092-4316c288032e?w=1200&q=80"
       ></video>
       <div class="chef-video-overlay" id="videoOverlay">
@@ -1804,33 +1805,41 @@
 
   <script>
     // Chef video
-    const chefVideo   = document.getElementById('chefVideo');
+    const chefVideo    = document.getElementById('chefVideo');
     const videoOverlay = document.getElementById('videoOverlay');
-    const muteBtn     = document.getElementById('muteBtn');
-    const muteIcon    = document.getElementById('muteIcon');
+    const muteBtn      = document.getElementById('muteBtn');
+    const muteIcon     = document.getElementById('muteIcon');
 
-    function playVideo() {
-      chefVideo.muted = true;
-      chefVideo.play().then(() => {
-        videoOverlay.classList.add('hidden');
-        muteBtn.classList.add('visible');
-      }).catch(() => {
-        // play still blocked — keep overlay visible
-      });
-    }
-
-    function pauseVideo() {
-      chefVideo.pause();
+    function showOverlay() {
       videoOverlay.classList.remove('hidden');
       muteBtn.classList.remove('visible');
     }
 
-    // Play on overlay or play-button click
+    function hideOverlay() {
+      videoOverlay.classList.add('hidden');
+      muteBtn.classList.add('visible');
+    }
+
+    function playVideo() {
+      chefVideo.muted = true;
+      chefVideo.play().then(hideOverlay).catch(showOverlay);
+    }
+
+    // Auto-play as soon as browser allows it
+    chefVideo.addEventListener('canplaythrough', playVideo, { once: true });
+
+    // Also try immediately (works if video is already cached)
+    playVideo();
+
+    // Click overlay to play manually if autoplay was blocked
     videoOverlay.addEventListener('click', playVideo);
 
-    // Pause on video click while playing
+    // Click video while playing → pause
     chefVideo.addEventListener('click', () => {
-      if (!chefVideo.paused) pauseVideo();
+      if (!chefVideo.paused) {
+        chefVideo.pause();
+        showOverlay();
+      }
     });
 
     // Mute toggle
