@@ -199,6 +199,26 @@
 
     .mobile-menu a:hover { color: var(--gold); }
 
+    .mobile-close {
+      position: absolute;
+      top: 1.4rem;
+      right: 1.5rem;
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--white);
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .mobile-close:hover { border-color: var(--gold); color: var(--gold); }
+
     /* ─── HERO ─── */
     .hero {
       min-height: 100svh;
@@ -458,6 +478,168 @@
       line-height: 1.7;
       color: rgba(245,240,232,0.7);
       letter-spacing: 0.04em;
+    }
+
+    /* ─── CHEF VIDEO ─── */
+    .chef-video-section {
+      background: var(--dark2);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 6rem 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3rem;
+    }
+
+    .chef-video-content {
+      text-align: center;
+      max-width: 560px;
+    }
+
+    .chef-video-content h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 300;
+      color: var(--white);
+      line-height: 1.15;
+      margin-bottom: 1rem;
+    }
+
+    .chef-video-content p {
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.9;
+      letter-spacing: 0.03em;
+    }
+
+    .chef-video-wrap {
+      position: relative;
+      width: 100%;
+      max-width: 960px;
+      aspect-ratio: 16/9;
+      border: 1px solid rgba(201,162,83,0.35);
+      overflow: hidden;
+      background: #000;
+    }
+
+    .chef-video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .chef-video-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(8,7,5,0.52);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      transition: background 0.3s;
+      cursor: pointer;
+    }
+
+    .chef-video-overlay.hidden {
+      background: transparent;
+      pointer-events: none;
+    }
+
+    .chef-video-overlay.hidden .play-btn,
+    .chef-video-overlay.hidden .play-label { opacity: 0; }
+
+    .play-btn {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      border: 1px solid var(--gold);
+      background: rgba(201,162,83,0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.25s, transform 0.25s;
+    }
+
+    .play-btn:hover { background: rgba(201,162,83,0.28); transform: scale(1.08); }
+
+    .play-icon {
+      color: var(--gold);
+      font-size: 1.4rem;
+      margin-left: 4px;
+    }
+
+    .play-label {
+      font-size: 0.68rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(245,240,232,0.7);
+      transition: opacity 0.3s;
+    }
+
+    .video-mute-btn {
+      position: absolute;
+      bottom: 1rem;
+      right: 1rem;
+      background: rgba(8,7,5,0.65);
+      border: 1px solid var(--border);
+      color: var(--white);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.2s;
+      z-index: 2;
+    }
+
+    .video-mute-btn.visible { display: flex; }
+    .video-mute-btn:hover { border-color: var(--gold); }
+
+    .chef-video-stats {
+      display: flex;
+      align-items: center;
+      gap: 2.5rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .chef-stat { text-align: center; }
+
+    .chef-stat-num {
+      display: block;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.4rem;
+      font-weight: 300;
+      color: var(--gold);
+      line-height: 1;
+    }
+
+    .chef-stat-label {
+      display: block;
+      font-size: 0.62rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 0.4rem;
+    }
+
+    .chef-stat-divider {
+      width: 1px;
+      height: 40px;
+      background: var(--border);
+    }
+
+    @media (max-width: 600px) {
+      .chef-video-section { padding: 4rem 1.2rem; gap: 2rem; }
+      .chef-stat-divider { display: none; }
+      .chef-video-stats { gap: 2rem; }
     }
 
     /* ─── GALLERY ─── */
@@ -985,8 +1167,10 @@
 
   <!-- MOBILE DRAWER -->
   <div class="mobile-menu" id="mobileMenu">
+    <button class="mobile-close" id="mobileClose" aria-label="Close menu">✕</button>
     <a href="#about" class="ml">Our Story</a>
     <a href="#menu" class="ml">Menu</a>
+    <a href="#chef" class="ml">Our Chef</a>
     <a href="#gallery" class="ml">Gallery</a>
     <a href="#reserve" class="ml">Reserve</a>
     <a href="#" class="btn btn-gold open-booking ml" style="font-size:0.8rem; margin-top:0.5rem;">
@@ -1111,6 +1295,52 @@
         </div>
       </div>
       <a href="#" class="btn btn-gold open-booking" style="margin:0 auto;">Learn more <span class="arrow">→</span></a>
+    </div>
+  </section>
+
+  <!-- CHEF VIDEO -->
+  <section class="chef-video-section" id="chef">
+    <div class="chef-video-content">
+      <span class="eyebrow">Behind the Flame</span>
+      <h2>Watch Our Chef <span class="gold">at Work</span></h2>
+      <p>Every plate begins long before it reaches your table. Step into our kitchen and witness the craft, precision, and passion that define every Ember & Oak experience.</p>
+    </div>
+    <div class="chef-video-wrap">
+      <video
+        id="chefVideo"
+        class="chef-video"
+        src="video.mp4"
+        autoplay
+        loop
+        muted
+        playsinline
+        poster="https://images.unsplash.com/photo-1600891964092-4316c288032e?w=1200&q=80"
+      ></video>
+      <div class="chef-video-overlay" id="videoOverlay">
+        <button class="play-btn" id="playBtn" aria-label="Play video">
+          <span class="play-icon">▶</span>
+        </button>
+        <div class="play-label">Watch the Story</div>
+      </div>
+      <button class="video-mute-btn" id="muteBtn" title="Toggle sound">
+        <span id="muteIcon">🔇</span>
+      </button>
+    </div>
+    <div class="chef-video-stats">
+      <div class="chef-stat">
+        <span class="chef-stat-num">15+</span>
+        <span class="chef-stat-label">Years Experience</span>
+      </div>
+      <div class="chef-stat-divider"></div>
+      <div class="chef-stat">
+        <span class="chef-stat-num">3</span>
+        <span class="chef-stat-label">Culinary Awards</span>
+      </div>
+      <div class="chef-stat-divider"></div>
+      <div class="chef-stat">
+        <span class="chef-stat-num">100%</span>
+        <span class="chef-stat-label">Open Flame Cooking</span>
+      </div>
     </div>
   </section>
 
@@ -1562,6 +1792,7 @@
     <ul class="footer-links">
       <li><a href="#about">Our Story</a></li>
       <li><a href="#menu">Menu</a></li>
+      <li><a href="#chef">Our Chef</a></li>
       <li><a href="#gallery">Gallery</a></li>
       <li><a href="#reserve">Reservations</a></li>
       <li><a href="#">Privacy Policy</a></li>
@@ -1572,6 +1803,41 @@
   </footer>
 
   <script>
+    // Chef video
+    const chefVideo = document.getElementById('chefVideo');
+    const videoOverlay = document.getElementById('videoOverlay');
+    const playBtn = document.getElementById('playBtn');
+    const muteBtn = document.getElementById('muteBtn');
+    const muteIcon = document.getElementById('muteIcon');
+
+    // Hide overlay and show mute button immediately (autoplay)
+    videoOverlay.classList.add('hidden');
+    muteBtn.classList.add('visible');
+
+    function togglePlay() {
+      if (chefVideo.paused) {
+        chefVideo.play();
+        videoOverlay.classList.add('hidden');
+        muteBtn.classList.add('visible');
+      } else {
+        chefVideo.pause();
+        videoOverlay.classList.remove('hidden');
+      }
+    }
+
+    videoOverlay.addEventListener('click', togglePlay);
+    playBtn.addEventListener('click', e => { e.stopPropagation(); togglePlay(); });
+
+    muteBtn.addEventListener('click', () => {
+      chefVideo.muted = !chefVideo.muted;
+      muteIcon.textContent = chefVideo.muted ? '🔇' : '🔊';
+    });
+
+    chefVideo.addEventListener('click', () => {
+      chefVideo.pause();
+      videoOverlay.classList.remove('hidden');
+    });
+
     // Booking modal
     const bookingModal = document.getElementById('bookingModal');
 
@@ -1644,12 +1910,16 @@
       document.body.style.overflow = mobileMenu.classList.contains('open') ? 'hidden' : '';
     });
 
+    function closeMobileMenu() {
+      hamburger.classList.remove('open');
+      mobileMenu.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    document.getElementById('mobileClose').addEventListener('click', closeMobileMenu);
+
     document.querySelectorAll('.ml').forEach(link => {
-      link.addEventListener('click', () => {
-        hamburger.classList.remove('open');
-        mobileMenu.classList.remove('open');
-        document.body.style.overflow = '';
-      });
+      link.addEventListener('click', closeMobileMenu);
     });
 
     // Highlight today in hours grid
