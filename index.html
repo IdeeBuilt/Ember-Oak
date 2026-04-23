@@ -1309,7 +1309,7 @@
       <video
         id="chefVideo"
         class="chef-video"
-        src="video.mp4"
+        src="video_compressed.mp4"
         autoplay
         loop
         muted
@@ -1810,32 +1810,49 @@
     const muteBtn = document.getElementById('muteBtn');
     const muteIcon = document.getElementById('muteIcon');
 
-    // Hide overlay and show mute button immediately (autoplay)
-    videoOverlay.classList.add('hidden');
-    muteBtn.classList.add('visible');
+    function showOverlay() {
+      videoOverlay.classList.remove('hidden');
+      muteBtn.classList.remove('visible');
+    }
 
-    function togglePlay() {
-      if (chefVideo.paused) {
-        chefVideo.play();
-        videoOverlay.classList.add('hidden');
-        muteBtn.classList.add('visible');
+    function hideOverlay() {
+      videoOverlay.classList.add('hidden');
+      muteBtn.classList.add('visible');
+    }
+
+    function startPlay() {
+      chefVideo.muted = true;
+      const promise = chefVideo.play();
+      if (promise !== undefined) {
+        promise.then(() => hideOverlay()).catch(() => showOverlay());
       } else {
-        chefVideo.pause();
-        videoOverlay.classList.remove('hidden');
+        hideOverlay();
       }
     }
 
-    videoOverlay.addEventListener('click', togglePlay);
-    playBtn.addEventListener('click', e => { e.stopPropagation(); togglePlay(); });
+    // Try autoplay once enough data is loaded
+    chefVideo.addEventListener('canplay', () => {
+      if (chefVideo.paused) startPlay();
+    }, { once: true });
+
+    // Fallback: try immediately in case already cached
+    if (chefVideo.readyState >= 3) startPlay();
+
+    // Click overlay / play button to play
+    videoOverlay.addEventListener('click', startPlay);
+    playBtn.addEventListener('click', e => { e.stopPropagation(); startPlay(); });
+
+    // Click playing video to pause and show overlay
+    chefVideo.addEventListener('click', () => {
+      if (!chefVideo.paused) {
+        chefVideo.pause();
+        showOverlay();
+      }
+    });
 
     muteBtn.addEventListener('click', () => {
       chefVideo.muted = !chefVideo.muted;
       muteIcon.textContent = chefVideo.muted ? '🔇' : '🔊';
-    });
-
-    chefVideo.addEventListener('click', () => {
-      chefVideo.pause();
-      videoOverlay.classList.remove('hidden');
     });
 
     // Booking modal
