@@ -1,0 +1,1695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ember & Oak — Modern American Grill</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:  #080705;
+      --dark:   #0f0d09;
+      --dark2:  #181410;
+      --gold:   #c9a253;
+      --gold2:  #e2c07a;
+      --white:  #f5f0e8;
+      --muted:  rgba(245,240,232,0.45);
+      --border: rgba(201,162,83,0.35);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--black);
+      color: var(--white);
+      font-weight: 300;
+    }
+
+    /* ─── UTILITY ─── */
+    .gold { color: var(--gold); }
+
+    .eyebrow {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-weight: 300;
+      font-size: 1.05rem;
+      letter-spacing: 0.08em;
+      color: var(--gold);
+      display: block;
+      margin-bottom: 0.6rem;
+    }
+
+    /* ─── BUTTONS ─── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.55rem 1.3rem;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--white);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 400;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      text-decoration: none;
+      cursor: pointer;
+      border-radius: 1px;
+      transition: border-color 0.25s, color 0.25s, background 0.25s;
+      white-space: nowrap;
+    }
+
+    .btn:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    .btn-gold {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    .btn-gold:hover {
+      background: var(--gold);
+      color: var(--black);
+    }
+
+    .btn .arrow { font-size: 0.9rem; line-height: 1; }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 3rem;
+      background: rgba(8,7,5,0.88);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(201,162,83,0.12);
+    }
+
+    .nav-logo-wrap {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+    }
+
+    .nav-badge {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: 1px solid var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.06em;
+      color: var(--gold);
+      flex-shrink: 0;
+    }
+
+    .nav-info {
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+    }
+
+    .nav-phone {
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      color: var(--white);
+    }
+
+    .nav-address {
+      font-size: 0.65rem;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+    }
+
+    .nav-center {
+      text-align: center;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.35rem;
+      letter-spacing: 0.12em;
+      color: var(--white);
+    }
+
+    .nav-center span { color: var(--gold); }
+
+    .nav-btns {
+      display: flex;
+      gap: 0.6rem;
+      align-items: center;
+    }
+
+    /* Hamburger */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 4px;
+    }
+
+    .hamburger span {
+      display: block;
+      width: 22px;
+      height: 1px;
+      background: var(--gold);
+      transition: transform 0.3s, opacity 0.3s;
+    }
+
+    .hamburger.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+    .hamburger.open span:nth-child(2) { opacity: 0; }
+    .hamburger.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+    /* Mobile drawer */
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(8,7,5,0.97);
+      z-index: 150;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2.5rem;
+    }
+
+    .mobile-menu.open { display: flex; }
+
+    .mobile-menu a {
+      text-decoration: none;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.2rem;
+      font-weight: 300;
+      color: var(--white);
+      transition: color 0.2s;
+    }
+
+    .mobile-menu a:hover { color: var(--gold); }
+
+    /* ─── HERO ─── */
+    .hero {
+      min-height: 100svh;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 8rem 2rem 4rem;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background: url('https://images.unsplash.com/photo-1559339352-11d035aa65de?w=1600&q=80') center/cover no-repeat;
+      filter: brightness(0.28) sepia(0.3);
+      z-index: 0;
+    }
+
+    .hero-vignette {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center, transparent 30%, rgba(8,7,5,0.75) 100%);
+      z-index: 1;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 720px;
+    }
+
+    .hero h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(3.2rem, 9vw, 6.5rem);
+      font-weight: 300;
+      line-height: 1.0;
+      letter-spacing: 0.04em;
+      color: var(--white);
+      margin-bottom: 2.5rem;
+    }
+
+    /* ─── HOURS ─── */
+    .hours-bar {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: 900px;
+      margin-top: 3.5rem;
+      padding: 2rem 2rem 1.5rem;
+      background: rgba(8,7,5,0.72);
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(201,162,83,0.5);
+    }
+
+    .hours-label {
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 1rem;
+      color: var(--gold2);
+      letter-spacing: 0.1em;
+      margin-bottom: 1.2rem;
+    }
+
+    .hours-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0;
+      border: 1px solid rgba(201,162,83,0.4);
+    }
+
+    .hours-cell {
+      padding: 0.9rem 0.5rem;
+      text-align: center;
+      border-right: 1px solid rgba(201,162,83,0.25);
+    }
+
+    .hours-cell:last-child { border-right: none; }
+
+    .hours-day {
+      font-size: 0.65rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(245,240,232,0.65);
+      margin-bottom: 0.45rem;
+    }
+
+    .hours-time {
+      font-size: 0.72rem;
+      letter-spacing: 0.03em;
+      color: var(--white);
+      line-height: 1.6;
+      font-weight: 400;
+    }
+
+    .hours-cell.today {
+      background: rgba(201,162,83,0.1);
+    }
+
+    .hours-cell.today .hours-day { color: var(--gold); }
+    .hours-cell.today .hours-time { color: var(--gold2); font-weight: 500; }
+
+    .hours-note {
+      font-size: 0.65rem;
+      color: rgba(245,240,232,0.5);
+      letter-spacing: 0.06em;
+      margin-top: 1rem;
+      font-style: italic;
+    }
+
+    /* ─── DIVIDER ─── */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      max-width: 200px;
+      margin: 0 auto 1.5rem;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .divider-icon {
+      color: var(--gold);
+      font-size: 1rem;
+    }
+
+    /* ─── MENU SECTION ─── */
+    .menu-section {
+      background: var(--dark);
+      padding: 6rem 3rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: center;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .menu-text .eyebrow { margin-bottom: 0.8rem; }
+
+    .menu-text h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(3rem, 6vw, 5rem);
+      font-weight: 300;
+      line-height: 1.05;
+      color: var(--white);
+      margin-bottom: 1.5rem;
+    }
+
+    .menu-text p {
+      font-size: 0.82rem;
+      line-height: 1.9;
+      color: var(--muted);
+      max-width: 360px;
+      margin-bottom: 2.2rem;
+      letter-spacing: 0.03em;
+    }
+
+    .menu-btns { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+
+    .menu-img-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .menu-plate-ring {
+      width: clamp(260px, 38vw, 420px);
+      height: clamp(260px, 38vw, 420px);
+      border-radius: 50%;
+      background: #1a1409;
+      border: 1px solid rgba(201,162,83,0.2);
+      overflow: hidden;
+      box-shadow: 0 0 80px rgba(0,0,0,0.6), inset 0 0 40px rgba(0,0,0,0.4);
+    }
+
+    .menu-plate-ring img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      mix-blend-mode: luminosity;
+      opacity: 0.85;
+    }
+
+    /* ─── FULL-WIDTH MENU SECTION BG ─── */
+    .menu-section-wrap {
+      background: var(--dark);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ─── CTA SECTION ─── */
+    .cta-section {
+      position: relative;
+      padding: 7rem 2rem;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .cta-bg {
+      position: absolute;
+      inset: 0;
+      background: url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1400&q=80') center/cover no-repeat;
+      filter: brightness(0.18) sepia(0.4);
+      z-index: 0;
+    }
+
+    .cta-content {
+      position: relative;
+      z-index: 1;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .cta-content h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 5vw, 3.8rem);
+      font-weight: 300;
+      line-height: 1.2;
+      color: var(--white);
+      margin-bottom: 3rem;
+    }
+
+    .cta-details {
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      margin-bottom: 2.5rem;
+      flex-wrap: wrap;
+    }
+
+    .cta-detail {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.7rem;
+      text-align: left;
+    }
+
+    .cta-icon {
+      color: var(--gold);
+      font-size: 1rem;
+      margin-top: 0.1rem;
+      flex-shrink: 0;
+    }
+
+    .cta-detail-text {
+      font-size: 0.75rem;
+      line-height: 1.7;
+      color: rgba(245,240,232,0.7);
+      letter-spacing: 0.04em;
+    }
+
+    /* ─── GALLERY ─── */
+    .gallery-wrap {
+      background: var(--black);
+      padding: 5rem 2rem;
+      text-align: center;
+    }
+
+    .gallery-wrap h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      font-weight: 300;
+      color: var(--white);
+      margin-bottom: 2.5rem;
+    }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: 180px 180px;
+      gap: 6px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .g-item {
+      background-size: cover;
+      background-position: center;
+      border-radius: 2px;
+      transition: filter 0.3s;
+      filter: brightness(0.75) sepia(0.2);
+    }
+
+    .g-item:hover { filter: brightness(0.95) sepia(0); }
+
+    .g-item:nth-child(1) { grid-column: span 2; grid-row: span 2; }
+
+    /* ─── TESTIMONIALS ─── */
+    .testimonials-wrap {
+      background: var(--dark2);
+      padding: 5rem 2rem;
+      text-align: center;
+      border-top: 1px solid var(--border);
+    }
+
+    .testimonials-wrap h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.8rem, 4vw, 3rem);
+      font-weight: 300;
+      color: var(--white);
+      margin-bottom: 3rem;
+    }
+
+    .testimonial-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .testimonial-card {
+      border: 1px solid var(--border);
+      padding: 2rem;
+      text-align: left;
+      background: rgba(201,162,83,0.03);
+    }
+
+    .stars { color: var(--gold); font-size: 0.8rem; margin-bottom: 1rem; letter-spacing: 0.2em; }
+
+    .t-text {
+      font-size: 0.83rem;
+      line-height: 1.8;
+      color: var(--muted);
+      font-style: italic;
+      margin-bottom: 1.2rem;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1rem;
+    }
+
+    .t-author { font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--gold); }
+
+    /* ─── RESERVATION ─── */
+    .reserve-wrap {
+      background: var(--dark);
+      padding: 6rem 2rem;
+      border-top: 1px solid var(--border);
+    }
+
+    .reserve-inner {
+      max-width: 680px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .reserve-inner h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 300;
+      color: var(--white);
+      margin-bottom: 0.5rem;
+    }
+
+    .reserve-inner > p {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 2.5rem;
+      letter-spacing: 0.05em;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.8rem;
+      margin-bottom: 0.8rem;
+    }
+
+    .form-group { display: flex; flex-direction: column; text-align: left; }
+
+    .form-group label {
+      font-size: 0.6rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.4rem;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--border);
+      border-radius: 1px;
+      padding: 0.7rem 0.9rem;
+      font-size: 0.82rem;
+      font-family: 'Inter', sans-serif;
+      color: var(--white);
+      outline: none;
+      transition: border-color 0.2s;
+      appearance: none;
+    }
+
+    .form-group select option { background: var(--dark2); color: var(--white); }
+
+    .form-group input::placeholder,
+    .form-group textarea::placeholder { color: rgba(245,240,232,0.25); }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus { border-color: var(--gold); }
+
+    .form-group textarea { resize: vertical; min-height: 80px; font-size: 1rem; }
+
+    .form-full { grid-column: span 2; }
+
+    .form-submit {
+      width: 100%;
+      background: transparent;
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      padding: 0.9rem;
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      transition: background 0.25s, color 0.25s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .form-submit:hover { background: var(--gold); color: var(--black); }
+
+    /* ─── BOOKING MODAL ─── */
+    .booking-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 300;
+      background: rgba(8,7,5,0.92);
+      backdrop-filter: blur(10px);
+      overflow-y: auto;
+      padding: 2rem 1.5rem 4rem;
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    .booking-modal.open { display: flex; }
+
+    .booking-modal-inner {
+      width: 100%;
+      max-width: 620px;
+      margin: auto;
+      border: 1px solid rgba(201,162,83,0.4);
+      background: var(--dark2);
+      padding: 3rem 3rem 2.5rem;
+      position: relative;
+    }
+
+    .booking-modal-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 0.4rem;
+    }
+
+    .booking-modal-header h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.8rem, 4vw, 2.6rem);
+      font-weight: 300;
+      color: var(--white);
+      line-height: 1.1;
+    }
+
+    .booking-modal-header h2 span { color: var(--gold); font-style: italic; }
+
+    .booking-close {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--white);
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      font-size: 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-left: 1rem;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .booking-close:hover { border-color: var(--gold); color: var(--gold); }
+
+    .booking-subtitle {
+      font-size: 0.72rem;
+      color: var(--muted);
+      letter-spacing: 0.07em;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    @media (max-width: 600px) {
+      .booking-modal-inner { padding: 2rem 1.5rem; }
+    }
+
+    /* ─── MENU MODAL ─── */
+    .menu-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      background: rgba(8,7,5,0.96);
+      backdrop-filter: blur(8px);
+      overflow-y: auto;
+      padding: 2rem 1.5rem 4rem;
+    }
+
+    .menu-modal.open { display: block; }
+
+    .menu-modal-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .menu-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.5rem 0 2.5rem;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 2.5rem;
+    }
+
+    .menu-modal-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 300;
+      color: var(--white);
+    }
+
+    .menu-modal-title span { color: var(--gold); font-style: italic; }
+
+    .menu-close {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--white);
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      font-size: 1.3rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .menu-close:hover { border-color: var(--gold); color: var(--gold); }
+
+    .menu-tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 2.5rem;
+      flex-wrap: wrap;
+    }
+
+    .menu-tab {
+      padding: 0.5rem 1.4rem;
+      border: 1px solid var(--border);
+      background: none;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      cursor: pointer;
+      color: var(--muted);
+      transition: all 0.2s;
+      border-radius: 1px;
+    }
+
+    .menu-tab.active,
+    .menu-tab:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+      background: rgba(201,162,83,0.07);
+    }
+
+    .menu-panel { display: none; }
+    .menu-panel.active { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+
+    .menu-item {
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+      overflow: hidden;
+      transition: border-color 0.25s;
+    }
+
+    .menu-item:hover { border-color: rgba(201,162,83,0.7); }
+
+    .menu-item-img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      display: block;
+      filter: brightness(0.85) sepia(0.15);
+      transition: filter 0.3s;
+    }
+
+    .menu-item:hover .menu-item-img { filter: brightness(0.95) sepia(0); }
+
+    .menu-item-body { padding: 1.2rem 1.3rem 1.4rem; }
+
+    .menu-item-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 0.5rem;
+      gap: 0.5rem;
+    }
+
+    .menu-item-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.2rem;
+      font-weight: 400;
+      color: var(--white);
+    }
+
+    .menu-item-price {
+      font-size: 0.9rem;
+      color: var(--gold);
+      font-weight: 400;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .menu-item-desc {
+      font-size: 0.75rem;
+      color: var(--muted);
+      line-height: 1.75;
+      letter-spacing: 0.02em;
+    }
+
+    .menu-item-tag {
+      display: inline-block;
+      margin-top: 0.8rem;
+      padding: 0.18rem 0.55rem;
+      border: 1px solid rgba(201,162,83,0.4);
+      color: var(--gold);
+      font-size: 0.6rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    /* ─── FOOTER ─── */
+    footer {
+      background: var(--black);
+      border-top: 1px solid var(--border);
+      padding: 3rem 2rem;
+      text-align: center;
+    }
+
+    .footer-badge {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      border: 1px solid var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 0.8rem;
+      color: var(--gold);
+      margin: 0 auto 1.5rem;
+    }
+
+    .footer-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.4rem;
+      font-weight: 300;
+      letter-spacing: 0.15em;
+      color: var(--white);
+      margin-bottom: 1.2rem;
+    }
+
+    .footer-logo span { color: var(--gold); }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      list-style: none;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.65rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover { color: var(--gold); }
+
+    .footer-sep { width: 40px; height: 1px; background: var(--border); margin: 1rem auto; }
+
+    .footer-copy { font-size: 0.62rem; letter-spacing: 0.08em; color: rgba(245,240,232,0.25); }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 960px) {
+      nav {
+        grid-template-columns: auto 1fr auto;
+        padding: 0.9rem 1.5rem;
+      }
+      .nav-center { font-size: 1.1rem; }
+      .nav-info { display: none; }
+      .nav-btns { display: none; }
+      .hamburger { display: flex; }
+
+      .menu-section {
+        grid-template-columns: 1fr;
+        padding: 4rem 2rem;
+        gap: 3rem;
+        text-align: center;
+      }
+      .menu-text p { max-width: 100%; }
+      .menu-btns { justify-content: center; }
+      .menu-img-wrap { justify-content: center; }
+
+      .hours-grid { grid-template-columns: repeat(4, 1fr); }
+      .hours-cell:nth-child(n+5) { border-top: 1px solid var(--border); }
+
+      .gallery-grid {
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: 160px 160px 160px;
+      }
+      .g-item:nth-child(1) { grid-column: span 2; grid-row: span 1; }
+    }
+
+    @media (max-width: 600px) {
+      nav { padding: 0.8rem 1.2rem; }
+      .nav-center { font-size: 0.95rem; letter-spacing: 0.08em; }
+
+      .hero { padding: 6rem 1.2rem 3rem; }
+
+      .hours-grid { grid-template-columns: repeat(2, 1fr); }
+      .hours-cell:nth-child(n+3) { border-top: 1px solid var(--border); }
+
+      .menu-section { padding: 3.5rem 1.5rem; gap: 2.5rem; }
+
+      .cta-details { flex-direction: column; align-items: center; gap: 1.5rem; }
+
+      .form-row { grid-template-columns: 1fr; }
+      .form-full { grid-column: span 1; }
+      .form-group input,
+      .form-group select,
+      .form-group textarea { font-size: 1rem; }
+
+      .gallery-grid { grid-template-columns: 1fr 1fr; }
+      .g-item { height: 130px; }
+      .g-item:nth-child(1) { height: 130px; }
+
+      .testimonial-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 380px) {
+      .nav-center { display: none; }
+      .hours-grid { grid-template-columns: 1fr 1fr; }
+      .gallery-grid { grid-template-columns: 1fr; }
+      .g-item:nth-child(1) { grid-column: span 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- MOBILE DRAWER -->
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#about" class="ml">Our Story</a>
+    <a href="#menu" class="ml">Menu</a>
+    <a href="#gallery" class="ml">Gallery</a>
+    <a href="#reserve" class="ml">Reserve</a>
+    <a href="#" class="btn btn-gold open-booking ml" style="font-size:0.8rem; margin-top:0.5rem;">
+      <span class="arrow">→</span> Book a Table
+    </a>
+  </div>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo-wrap">
+      <div class="nav-badge">E&amp;O</div>
+      <div class="nav-info">
+        <span class="nav-phone">+1 (555) 842-0193</span>
+        <span class="nav-address">123 Fireside Lane, Downtown District</span>
+      </div>
+    </div>
+
+    <div class="nav-center">Ember <span>&</span> Oak</div>
+
+    <div class="nav-btns">
+      <a href="#menu" class="btn"><span class="arrow">→</span> View Menu</a>
+      <a href="#" class="btn btn-gold open-booking">Book a Table <span class="arrow">→</span></a>
+    </div>
+    <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero" id="home">
+    <div class="hero-bg"></div>
+    <div class="hero-vignette"></div>
+    <div class="hero-content">
+      <span class="eyebrow">Johnnie's dining restaurant</span>
+      <h1>Ember <span class="gold">&</span> Oak</h1>
+      <div class="divider">
+        <span class="divider-icon">✦</span>
+      </div>
+      <div style="display:flex; gap:0.8rem; justify-content:center; flex-wrap:wrap;">
+        <a href="#" class="btn btn-gold open-booking">Book your table <span class="arrow">→</span></a>
+        <a href="#menu" class="btn"><span class="arrow">→</span> View Menu</a>
+      </div>
+    </div>
+
+    <!-- HOURS -->
+    <div class="hours-bar">
+      <div class="hours-label">— Working hours —</div>
+      <div class="hours-grid">
+        <div class="hours-cell">
+          <div class="hours-day">Sunday</div>
+          <div class="hours-time">Closed</div>
+        </div>
+        <div class="hours-cell today">
+          <div class="hours-day">Monday</div>
+          <div class="hours-time">5pm – 10pm</div>
+        </div>
+        <div class="hours-cell">
+          <div class="hours-day">Tuesday</div>
+          <div class="hours-time">5pm – 10pm</div>
+        </div>
+        <div class="hours-cell">
+          <div class="hours-day">Wednesday</div>
+          <div class="hours-time">5pm – 10pm</div>
+        </div>
+        <div class="hours-cell">
+          <div class="hours-day">Thursday</div>
+          <div class="hours-time">5pm – 11pm</div>
+        </div>
+        <div class="hours-cell">
+          <div class="hours-day">Friday</div>
+          <div class="hours-time">4pm – 12am</div>
+        </div>
+        <div class="hours-cell">
+          <div class="hours-day">Saturday</div>
+          <div class="hours-time">4pm – 12am</div>
+        </div>
+      </div>
+      <p class="hours-note">Reservations are limited to 2 hours · Please note that a deposit may be required.</p>
+    </div>
+  </section>
+
+  <!-- MENU SECTION -->
+  <div class="menu-section-wrap" id="menu">
+    <div class="menu-section">
+      <div class="menu-text">
+        <span class="eyebrow">Taste the mood</span>
+        <h2>Our<br />Menu</h2>
+        <p>Inside the F&B Restaurant & Grill, we aim for fine dining. Whether you are looking for a quiet dining experience or an intimate spot, our atmosphere is renowned for its exceptional food and service.</p>
+        <div class="menu-btns">
+          <a href="#" class="btn btn-gold open-booking">Book your table <span class="arrow">→</span></a>
+          <button class="btn" id="openMenu"><span class="arrow">→</span> View Items</button>
+        </div>
+      </div>
+      <div class="menu-img-wrap">
+        <div class="menu-plate-ring">
+          <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800&q=80" alt="Signature dish" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA SECTION -->
+  <section class="cta-section" id="about">
+    <div class="cta-bg"></div>
+    <div class="cta-content">
+      <span class="eyebrow" style="display:block; margin-bottom:1rem;">A warm welcome awaits</span>
+      <h2>We look forward to have you dine with us</h2>
+      <div class="cta-details">
+        <div class="cta-detail">
+          <span class="cta-icon">⊙</span>
+          <div class="cta-detail-text">
+            123 Fireside Lane, Downtown District<br />
+            Windsor, ON N9Y 2B2
+          </div>
+        </div>
+        <div class="cta-detail">
+          <span class="cta-icon">☏</span>
+          <div class="cta-detail-text">
+            Call us at:<br />
+            +1 (555) 842-0193
+          </div>
+        </div>
+      </div>
+      <a href="#" class="btn btn-gold open-booking" style="margin:0 auto;">Learn more <span class="arrow">→</span></a>
+    </div>
+  </section>
+
+  <!-- GALLERY -->
+  <section class="gallery-wrap" id="gallery">
+    <span class="eyebrow">A Feast for the Eyes</span>
+    <h2>Inside Our Restaurant</h2>
+    <div class="gallery-grid">
+      <div class="g-item" style="background-image: url('https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=900&q=80')"></div>
+      <div class="g-item" style="background-image: url('https://images.unsplash.com/photo-1600891964092-4316c288032e?w=600&q=80')"></div>
+      <div class="g-item" style="background-image: url('https://images.unsplash.com/photo-1544025162-d76694265947?w=600&q=80')"></div>
+      <div class="g-item" style="background-image: url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600&q=80')"></div>
+      <div class="g-item" style="background-image: url('https://images.unsplash.com/photo-1559339352-11d035aa65de?w=600&q=80')"></div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section class="testimonials-wrap">
+    <span class="eyebrow">Guest Reviews</span>
+    <h2>What Our Guests Say</h2>
+    <div class="testimonial-grid">
+      <div class="testimonial-card">
+        <div class="stars">★ ★ ★ ★ ★</div>
+        <p class="t-text">"The oak-smoked burrata is unlike anything I've had. The ambiance, the service, the food — every single detail was perfect."</p>
+        <div class="t-author">— Sarah M., via Google</div>
+      </div>
+      <div class="testimonial-card">
+        <div class="stars">★ ★ ★ ★ ★</div>
+        <p class="t-text">"We celebrated our anniversary here and it was magical. The open-flame cooking creates flavors you simply cannot replicate at home."</p>
+        <div class="t-author">— James R., via Yelp</div>
+      </div>
+      <div class="testimonial-card">
+        <div class="stars">★ ★ ★ ★ ★</div>
+        <p class="t-text">"Best restaurant in the city, hands down. The sourcing story alone is worth coming back for. We're regulars now."</p>
+        <div class="t-author">— Linda K., via TripAdvisor</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- RESERVATION -->
+  <section class="reserve-wrap" id="reserve">
+    <div class="reserve-inner">
+      <span class="eyebrow">Reserve a Table</span>
+      <h2>Join Us for Dinner</h2>
+      <p>Tuesday through Sunday · 5 PM – 10 PM · Reservations recommended</p>
+
+      <form onsubmit="handleReservation(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label>First Name</label>
+            <input type="text" placeholder="Jane" required />
+          </div>
+          <div class="form-group">
+            <label>Last Name</label>
+            <input type="text" placeholder="Smith" required />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" placeholder="jane@email.com" required />
+          </div>
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="tel" placeholder="(555) 000-0000" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Date</label>
+            <input type="date" required />
+          </div>
+          <div class="form-group">
+            <label>Time</label>
+            <select required>
+              <option value="">Select a time</option>
+              <option>5:00 PM</option>
+              <option>5:30 PM</option>
+              <option>6:00 PM</option>
+              <option>6:30 PM</option>
+              <option>7:00 PM</option>
+              <option>7:30 PM</option>
+              <option>8:00 PM</option>
+              <option>8:30 PM</option>
+              <option>9:00 PM</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Party Size</label>
+            <select required>
+              <option value="">Guests</option>
+              <option>1</option><option>2</option><option>3</option>
+              <option>4</option><option>5</option><option>6</option><option>7+</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Occasion</label>
+            <select>
+              <option value="">None</option>
+              <option>Birthday</option><option>Anniversary</option>
+              <option>Business</option><option>Date Night</option><option>Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group form-full">
+            <label>Special Requests</label>
+            <textarea placeholder="Dietary restrictions, seating preferences…"></textarea>
+          </div>
+        </div>
+        <button type="submit" class="form-submit">
+          <span class="arrow">→</span> Confirm Reservation
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- BOOKING MODAL -->
+  <div class="booking-modal" id="bookingModal">
+    <div class="booking-modal-inner">
+      <div class="booking-modal-header">
+        <h2>Reserve a <span>Table</span></h2>
+        <button class="booking-close" id="bookingClose">✕</button>
+      </div>
+      <p class="booking-subtitle">Tuesday – Sunday &nbsp;·&nbsp; 5 PM – 10 PM &nbsp;·&nbsp; Reservations recommended</p>
+
+      <form onsubmit="handleBooking(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label>First Name</label>
+            <input type="text" placeholder="Jane" required />
+          </div>
+          <div class="form-group">
+            <label>Last Name</label>
+            <input type="text" placeholder="Smith" required />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" placeholder="jane@email.com" required />
+          </div>
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="tel" placeholder="(555) 000-0000" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Date</label>
+            <input type="date" required />
+          </div>
+          <div class="form-group">
+            <label>Time</label>
+            <select required>
+              <option value="">Select a time</option>
+              <option>5:00 PM</option>
+              <option>5:30 PM</option>
+              <option>6:00 PM</option>
+              <option>6:30 PM</option>
+              <option>7:00 PM</option>
+              <option>7:30 PM</option>
+              <option>8:00 PM</option>
+              <option>8:30 PM</option>
+              <option>9:00 PM</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Party Size</label>
+            <select required>
+              <option value="">Guests</option>
+              <option>1</option><option>2</option><option>3</option>
+              <option>4</option><option>5</option><option>6</option><option>7+</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Occasion</label>
+            <select>
+              <option value="">None</option>
+              <option>Birthday</option><option>Anniversary</option>
+              <option>Business</option><option>Date Night</option><option>Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group form-full">
+            <label>Special Requests</label>
+            <textarea placeholder="Dietary restrictions, seating preferences…"></textarea>
+          </div>
+        </div>
+        <button type="submit" class="form-submit">
+          <span class="arrow">→</span> Confirm Reservation
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MENU MODAL -->
+  <div class="menu-modal" id="menuModal">
+    <div class="menu-modal-inner">
+      <div class="menu-modal-header">
+        <div class="menu-modal-title">Our <span>Menu</span></div>
+        <button class="menu-close" id="menuClose">✕</button>
+      </div>
+
+      <div class="menu-tabs">
+        <button class="menu-tab active" data-tab="starters">Starters</button>
+        <button class="menu-tab" data-tab="mains">Mains</button>
+        <button class="menu-tab" data-tab="desserts">Desserts</button>
+        <button class="menu-tab" data-tab="drinks">Drinks</button>
+      </div>
+
+      <!-- STARTERS -->
+      <div class="menu-panel active" id="tab-starters">
+        <div class="menu-item">
+          <img class="menu-item-img" src="https://images.unsplash.com/photo-1572695157366-5e585ab2b69f?w=600&q=80" alt="Charred Corn Bisque" />
+          <div class="menu-item-body">
+            <div class="menu-item-top">
+              <span class="menu-item-name">Charred Corn Bisque</span>
+              <span class="menu-item-price">$14</span>
+            </div>
+            <p class="menu-item-desc">Fire-roasted sweet corn, crème fraîche, chive oil, smoked paprika dust</p>
+            <span class="menu-item-tag">Chef's Pick</span>
+          </div>
+        </div>
+        <div class="menu-item">
+          <img class="menu-item-img" src="https://images.unsplash.com/photo-1511690743698-d9d85f2fbf38?w=600&q=80" alt="Oak-Smoked Burrata" />
+          <div class="menu-item-body">
+            <div class="menu-item-top">
+              <span class="menu-item-name">Oak-Smoked Burrata</span>
+              <span class="menu-item-price">$17</span>
+            </div>
+            <p class="menu-item-desc">Cold-smoked burrata, heirloom tomatoes, basil oil, grilled sourdough</p>
+          </div>
+        </div>
+        <div class="menu-item">
+          <img class="menu-item-img" src="https://images.unsplash.com/photo-1432139509613-5c4255815697?w=600&q=80" alt="Ember-Roasted Beet Salad" />
+          <div class="menu-item-body">
+            <div class="menu-item-top">
+              <span class="menu-item-name">Ember-Roasted Beet Salad</span>
+              <span class="menu-item-price">$15</span>
+            </div>
+            <p class="menu-item-desc">Golden & red beets, candied walnuts, goat cheese, aged balsamic</p>
+            <span class="menu-item-tag">Vegetarian</span>
+          </div>
+        </div>
+        <div class="menu-item">
+          <img class="menu-item-img" src="https://images.unsplash.com/photo-1541014741259-de529411b96a?w=600&q=80" alt="Grilled Octopus" />
+          <div class="menu-item-body">
+            <div class="menu-item-top">
+              <span class="menu-item-name">Grilled Octopus</span>
+              <span class="menu-item-price">$22</span>
+            </div>
+            <p class="menu-item-desc">Slow-braised then charred, fingerling potatoes, olive tapenade, lemon aioli</p>
+          </div>
+        </div>
+        <div class="menu-item">
+          <img class="menu-item-img" src="https://images.unsplash.com/photo-1476718406336-bb5a9690ee2a?w=600&q=80" alt="Mushroom Crostini" />
+          <div class="menu-item-body">
+            <div class="menu-item-top">
+              <span class="menu-item-name">Wild Mushroom Crostini</span>
+              <span class="menu-item-price">$13</span>
+            </div>
+            <p class="menu-item-desc">Sautéed wild mushrooms, truffle oil, whipped ricotta, toasted sourdough</p>
+            <span class="menu-item-tag">Vegetarian</span>
+          </div>
+        </div>
+        <div class="menu-item">
+          <img class="menu-item-img" src="https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=600&q=80" alt="Tuna Tartare" />
+          <div class="menu-item-body">
+            <div class="menu-item-top">
+              <span class="menu-item-name">Yellowfin Tuna Tartare</span>
+              <span class="menu-item-price">$21</span>
+            </div>
+            <p class="menu-item-desc">Diced tuna, avocado, sesame, cucumber, ponzu, crispy wonton chips</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- MAINS -->
+      <div class="menu-panel" id="tab-mains">
+        <div class="menu-item">
+          <img class="menu-item-img" src="https://images.unsplash.com/photo-1544025162-d76694265947?w=600&q=80" alt="Ribeye" />
+          <div class="menu-item-body">
+            <div class="menu-item-top">
+              <span class="menu-item-name">Oak-Aged Ribeye</span>
+              <span class="menu-item-price">$58</span>
+            </div>
+            <p class="menu-item-desc">16oz dry-aged ribeye, bone marrow butter, roasted garlic, rosemary jus</p>
+            <span class="menu-item-tag">Signature</span>
+          </div>
+        </div>
+        <div class="menu-item">
+          <img class="menu-item-img" src="https://images.unsplash.com/photo-1519984388953-d2406bc725e1?w=600&q=80" alt="Salmon" />
+          <div class="menu-item-body">
+            <div class="menu-item-top">
+              <span class="menu-item-name">Cedar-Plank Salmon</span>
+              <span class="menu-item-price">$38</span>
+            </div>
+            <p class="menu-item-desc">Atlantic salmon, dill beurre blanc, charred asparagus, wild rice pilaf</p>
+          </div>
+        </div>
+        <div class="menu-item">
+          <img class="menu-item-img" src="https://images.unsplash.com/photo-1600891964092-4316c288032e?w=600&q=80" alt="Duck Breast" />
+          <div class="menu-item-body">
+            <div class="menu-item-top">
+              <span class="menu-item-name">Smoked Duck Breast</span>
+              <span class="menu-item-price">$42</span>
+            </div>
+            <p class="menu-item-desc">Cherry-smoked duck, blackberry reduction, parsnip purée, crispy sage</p>
+            <span class="menu-item-tag">Chef's Pick</span>
+          </div>
+        </div>
+        <div class="menu-item">
+          <img class="menu-item-img" src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80" alt="Lamb Rack" />
+          <div class="menu-item-body">
+            <div class="menu-item-top">
+              <span class="menu-item-name">Herb-Crusted Lamb Rack</span>
+              <span class="menu-item-price">$54</span>
+            </div>
+            <p class="menu-item-desc">Frenched lamb rack, Dijon-herb crust, ratatouille, mint chimichurri</p>
+          </div>
+        </div>
+        <div class="menu-item">
+          <img class="menu-item-img" src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=600&q=80" alt="Burger" />
+          <div class="menu-item-body">
+            <div class="menu-item-top">
+              <span class="menu-item-name">Ember & Oak Burger</span>
+              <span class="menu-item-price">$26</span>
+            </div>
+            <p class="menu-item-desc">Dry-aged beef blend, aged cheddar, caramelised onion, brioche, house pickles</p>
+          </div>
+        </div>
+        <div class="menu-item">
+          <img class="menu-item-img" src="https://images.unsplash.com/photo-1473093226795-af9932fe5856?w=600&q=80" alt="Mushroom Risotto" />
+          <div class="menu-item-body">
+            <div class="menu-item-top">
+              <span class="menu-item-name">Truffle Mushroom Risotto</span>
+              <span class="menu-item-price">$29</span>
+            </div>
+            <p class="menu-item-desc">Arborio rice, porcini, black truffle shavings, aged parmesan, chives</p>
+            <span class="menu-item-tag">Vegetarian</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- DESSERTS -->
+      <div class="menu-panel" id="tab-desserts">
+        <div class="menu-item">
+          <img class="menu-item-img" src="https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=600&q=80" alt="Chocolate Fondant" />
+          <div class="menu-item-body">
+            <div class="menu-item-top">
+              <span class="menu-item-name">Dark Chocolate Fondant</span>
+              <span class="menu-item-price">$14</span>
+            </div>
+            <p class="menu-item-desc">Valrhona 70% chocolate, molten centre, salted caramel, vanilla bean ice cream</p>
+            <span class="menu-item-tag">Signature</span>
+          </div>
+        </div>
+        <div class="menu-item">
+          <img class="menu-item-img" src="https://images.unsplash.com/photo-1488477181228-c1b098c61d64?w=600&q=80" alt="Crème Brûlée" />
+          <div class="menu-item-body">
+            <div class="menu-item-top">
+              <span class="menu-item-name">Vanilla Crème Brûlée</span>
+              <span class="menu-item-price">$12</span>
+            </div>
+            <p class="menu-item-desc">Madagascan vanilla custard, caramelised sugar crust, seasonal berries</p>
+          </div>
+        </div>
+        <div class="menu-item">
+          <img class="menu-item-img" src="https://images.unsplash.com/photo-1551024506-0bccd828d307?w=600&q=80" alt="Panna Cotta" />
+          <div class="menu-item-body">
+            <div class="menu-item-top">
+              <span class="menu-item-name">Oak-Smoked Panna Cotta</span>
+              <span class="menu-item-price">$13</span>
+            </div>
+            <p class="menu-item-desc">Lightly smoked cream, honey glaze, candied pecans, lavender tuile</p>
+          </div>
+        </div>
+        <div class="menu-item">
+          <img class="menu-item-img" src="https://images.unsplash.com/photo-1571115177098-24ec42ed204d?w=600&q=80" alt="Cheese Board" />
+          <div class="menu-item-body">
+            <div class="menu-item-top">
+              <span class="menu-item-name">Artisan Cheese Board</span>
+              <span class="menu-item-price">$22</span>
+            </div>
+            <p class="menu-item-desc">Three curated cheeses, fig jam, honeycomb, candied walnuts, crackers</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- DRINKS -->
+      <div class="menu-panel" id="tab-drinks">
+        <div class="menu-item">
+          <img class="menu-item-img" src="https://images.unsplash.com/photo-1470337458703-46ad1756a187?w=600&q=80" alt="Cocktail" />
+          <div class="menu-item-body">
+            <div class="menu-item-top">
+              <span class="menu-item-name">Ember Sour</span>
+              <span class="menu-item-price">$16</span>
+            </div>
+            <p class="menu-item-desc">Mezcal, charred lemon juice, honey syrup, egg white, smoked salt rim</p>
+            <span class="menu-item-tag">Signature</span>
+          </div>
+        </div>
+        <div class="menu-item">
+          <img class="menu-item-img" src="https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?w=600&q=80" alt="Wine" />
+          <div class="menu-item-body">
+            <div class="menu-item-top">
+              <span class="menu-item-name">Sommelier's Red Selection</span>
+              <span class="menu-item-price">$18/gl</span>
+            </div>
+            <p class="menu-item-desc">Rotating selection of bold reds — ask your server for tonight's pour</p>
+          </div>
+        </div>
+        <div class="menu-item">
+          <img class="menu-item-img" src="https://images.unsplash.com/photo-1544145945-f90425340c7e?w=600&q=80" alt="Whiskey" />
+          <div class="menu-item-body">
+            <div class="menu-item-top">
+              <span class="menu-item-name">Oak Old Fashioned</span>
+              <span class="menu-item-price">$18</span>
+            </div>
+            <p class="menu-item-desc">Bourbon, toasted oak bitters, demerara, expressed orange peel, smoke cloche</p>
+          </div>
+        </div>
+        <div class="menu-item">
+          <img class="menu-item-img" src="https://images.unsplash.com/photo-1437418747212-8d9709afab22?w=600&q=80" alt="Mocktail" />
+          <div class="menu-item-body">
+            <div class="menu-item-top">
+              <span class="menu-item-name">Garden Spritz</span>
+              <span class="menu-item-price">$10</span>
+            </div>
+            <p class="menu-item-desc">Cucumber, elderflower, fresh mint, lime, sparkling water — non-alcoholic</p>
+            <span class="menu-item-tag">Non-Alcoholic</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-badge">E&amp;O</div>
+    <div class="footer-logo">Ember <span>&</span> Oak</div>
+    <ul class="footer-links">
+      <li><a href="#about">Our Story</a></li>
+      <li><a href="#menu">Menu</a></li>
+      <li><a href="#gallery">Gallery</a></li>
+      <li><a href="#reserve">Reservations</a></li>
+      <li><a href="#">Privacy Policy</a></li>
+      <li><a href="#">Contact Us</a></li>
+    </ul>
+    <div class="footer-sep"></div>
+    <p class="footer-copy">&copy; 2026 Ember & Oak. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // Booking modal
+    const bookingModal = document.getElementById('bookingModal');
+
+    function openBooking(e) {
+      e.preventDefault();
+      bookingModal.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeBooking() {
+      bookingModal.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    document.querySelectorAll('.open-booking').forEach(btn => btn.addEventListener('click', openBooking));
+    document.getElementById('bookingClose').addEventListener('click', closeBooking);
+    bookingModal.addEventListener('click', e => { if (e.target === bookingModal) closeBooking(); });
+
+    function handleBooking(e) {
+      e.preventDefault();
+      const btn = e.target.querySelector('.form-submit');
+      btn.innerHTML = '✓ &nbsp;Reservation Confirmed';
+      btn.style.background = 'rgba(201,162,83,0.15)';
+      btn.style.color = 'var(--gold2)';
+      btn.disabled = true;
+      setTimeout(() => {
+        closeBooking();
+        btn.innerHTML = '<span class="arrow">→</span> Confirm Reservation';
+        btn.style.background = '';
+        btn.style.color = '';
+        btn.disabled = false;
+        e.target.reset();
+      }, 2500);
+    }
+
+    // Menu modal
+    const menuModal = document.getElementById('menuModal');
+    document.getElementById('openMenu').addEventListener('click', () => {
+      menuModal.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    });
+    document.getElementById('menuClose').addEventListener('click', () => {
+      menuModal.classList.remove('open');
+      document.body.style.overflow = '';
+    });
+    menuModal.addEventListener('click', e => {
+      if (e.target === menuModal) {
+        menuModal.classList.remove('open');
+        document.body.style.overflow = '';
+      }
+    });
+
+    // Menu tabs
+    document.querySelectorAll('.menu-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.menu-tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.menu-panel').forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+      });
+    });
+
+    // Hamburger
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobileMenu');
+
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('open');
+      mobileMenu.classList.toggle('open');
+      document.body.style.overflow = mobileMenu.classList.contains('open') ? 'hidden' : '';
+    });
+
+    document.querySelectorAll('.ml').forEach(link => {
+      link.addEventListener('click', () => {
+        hamburger.classList.remove('open');
+        mobileMenu.classList.remove('open');
+        document.body.style.overflow = '';
+      });
+    });
+
+    // Highlight today in hours grid
+    const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const today = days[new Date().getDay()];
+    document.querySelectorAll('.hours-cell').forEach(cell => {
+      if (cell.querySelector('.hours-day')?.textContent === today) {
+        cell.classList.add('today');
+      }
+    });
+
+    // Reservation form
+    function handleReservation(e) {
+      e.preventDefault();
+      const btn = e.target.querySelector('.form-submit');
+      btn.innerHTML = '✓ Reservation Confirmed';
+      btn.style.background = 'rgba(201,162,83,0.15)';
+      btn.style.color = 'var(--gold2)';
+      btn.disabled = true;
+      setTimeout(() => {
+        btn.innerHTML = '<span class="arrow">→</span> Confirm Reservation';
+        btn.style.background = '';
+        btn.style.color = '';
+        btn.disabled = false;
+        e.target.reset();
+      }, 4000);
+    }
+
+    // Scroll nav highlight
+    const navSections = document.querySelectorAll('section[id], div[id]');
+    window.addEventListener('scroll', () => {
+      const y = window.scrollY + 120;
+      navSections.forEach(sec => {
+        if (y >= sec.offsetTop && y < sec.offsetTop + sec.offsetHeight) {
+          document.querySelectorAll('.nav-btns a, .mobile-menu a').forEach(a => {
+            a.style.color = '';
+          });
+        }
+      });
+    });
+  </script>
+</body>
+</html>
